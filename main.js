@@ -2,8 +2,8 @@ var bgImg = document.createElement("img");
 bgImg.src = "images/map.png";
 
 
-var jasonImg = document.createElement("img");
-jasonImg.src = "images/jason.gif";
+var enemyImg = document.createElement("img");
+enemyImg.src = "images/rukia.gif";
 
 var towerBtnImg = document.createElement("img");
 towerBtnImg.src = "images/tower-btn.png";
@@ -11,9 +11,21 @@ towerBtnImg.src = "images/tower-btn.png";
 var towerImg = document.createElement("img");
 towerImg.src = "images/tower.png";
 
-var jason ={
+
+var fps = 60; 
+
+var enemy ={
 	x:96,
-	y:448
+	y:448,
+	speed:64,
+	direction:{
+		x:0,
+		y:-1
+	},
+	move:function(){
+		this.x = this.x + this.direction.x * this.speed/fps;
+		this.y = this.y + this.direction.y * this.speed/fps;
+	}
 }
 var tower={
 	x:0,
@@ -21,6 +33,8 @@ var tower={
 }
 
 var isbiding = false;
+
+
 
 
 var canvas = document.getElementById("game-canvas");
@@ -43,13 +57,17 @@ $('#game-canvas').click(function(){
 	}
 })
 
+
 function draw(){
 	ctx.drawImage(bgImg,0,0);
-	ctx.drawImage(jasonImg,jason.x,jason.y);
+	ctx.drawImage(enemyImg,enemy.x,enemy.y);
 	ctx.drawImage(towerBtnImg,640-64,480-64,64,64);
 	if(isbiding == true){
-		ctx.drawImage(towerImg,tower.x,tower.y);
+		ctx.drawImage(towerImg,tower.x-tower.x%32,tower.y-tower.y%32);
 	}
+	enemy.move();
 }
 
-setInterval(draw,16);
+
+setInterval(draw,1000/fps);
+

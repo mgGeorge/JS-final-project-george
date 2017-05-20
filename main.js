@@ -14,17 +14,40 @@ towerImg.src = "images/tower.png";
 
 var fps = 60; 
 
+var enemyPath=[
+{x:64,y:64},
+{x:224,y:64},
+{x:224,y:192},
+{x:160,y:192},
+{x:160,y:416},
+{x:352,y:416},
+{x:352,y:256},
+{x:544,y:256},
+{x:544,y:64}
+]
+
 var enemy ={
-	x:96,
+	x:64,
 	y:448,
 	speed:64,
+	pathDes:0,
 	direction:{
 		x:0,
 		y:-1
 	},
+
 	move:function(){
-		this.x = this.x + this.direction.x * this.speed/fps;
-		this.y = this.y + this.direction.y * this.speed/fps;
+		if(isCollided(enemyPath[this.pathDes].x,enemyPath[this.pathDes].y,this.x,this.y,this.speed/fps,this.speed/fps)){
+           this.x=enemyPath[this.pathDes].x;
+           this.y=enemyPath[this.pathDes].y;
+           this.pathDes++;
+           var unitVector = getUnitVector(this.x,this.y,enemyPath[this.pathDes].x,enemyPath[this.pathDes].y);
+		   this.direction = unitVector;
+		}else{
+			this.x = this.x + this.direction.x * this.speed/fps;
+		    this.y = this.y + this.direction.y * this.speed/fps;
+
+		}
 	}
 }
 var tower={
@@ -33,6 +56,18 @@ var tower={
 }
 
 var isbiding = false;
+
+function isCollided ( pointX, pointY, targetX, targetY, targetWidth, targetHeight ) {
+	if(  	pointX >= targetX
+	        &&  pointX <= targetX + targetWidth
+	        &&  pointY >= targetY
+	        &&  pointY <= targetY + targetHeight
+	){
+	        return true;
+	} else {
+	        return false;
+	}
+}
 
 
 
@@ -67,7 +102,18 @@ function draw(){
 	}
 	enemy.move();
 }
+  function getUnitVector (srcX, srcY, targetX, targetY) {
+    var offsetX = targetX - srcX;
+    var offsetY = targetY - srcY;
+    var distance = Math.sqrt( Math.pow(offsetX,2) + Math.pow(offsetY,2) );
+    var unitVector = {
+        x: offsetX/distance,
+        y: offsetY/distance
+    };
+    return unitVector;
+}
 
 
 setInterval(draw,1000/fps);
+
 

@@ -10,8 +10,9 @@ towerBtnImg.src = "images/tower-btn.png";
 
 var towerImg = document.createElement("img");
 towerImg.src = "images/tower.png";
-
-
+var crosshairImg = document.createElement("Img");
+crosshairImg.src = "images/crosshair.png";
+ 
 var fps = 60; 
 
 var enemyPath=[
@@ -41,10 +42,18 @@ function Enemy(){
 			this.x = enemyPath[this.pathDes].x;
 			this.y = enemyPath[this.pathDes].y;
 			this.pathDes++;
-
-
-			var unitVector = getUnitVector(this.x,this.y,enemyPath[this.pathDes].x,enemyPath[this.pathDes].y);
+			if (this.pathDes !== enemyPath.length){
+				var unitVector = getUnitVector(this.x,this.y,enemyPath[this.pathDes].x,enemyPath[this.pathDes].y);
 			this.direction = unitVector;
+			}
+			else{
+				this.Hp = 0;
+			}
+
+			
+
+
+			
 		}
 		else{
 
@@ -55,8 +64,26 @@ function Enemy(){
 }
 var tower={
 	x:0,
-	y:0
-}
+	y:0,
+    range:96,
+    aimingEnemyId:null,
+    searchEnemy: function(){
+     for(var i=0; i<enemies.length; i++){
+     var distance = Math.sqrt( 
+	Math.pow(this.x-enemies[i].x,2) + Math.pow(this.y-enemies[i].y,2) 
+	);
+	if (distance<=this.range) {
+	this.aimingEnemyId = i;
+	return;
+	}
+	}
+	this.aimingEnemyId = null;
+	}
+};
+
+
+
+
 
 var click = false;
 
@@ -106,30 +133,49 @@ $('#game-canvas').click(function(){
 	}
 })
 
-
+var Hp=100;
 function draw(){
 	clock = clock + 1;
-
+    tower.searchEnemy()
 	ctx.drawImage(bgImg,0,0);
 	ctx.drawImage(towerBtnImg,640-64,480-64,64,64);
+    ctx.fillText("Hp:"+Hp,1,20);
+    ctx.font = "25px Arial";
+    ctx.fillStyle = "white";
+	
+			
+		
+	
 
+	for(var i=0;i<enemies.length;i++){
+		
+		if (enemies[i].Hp<=0){
+			enemies.splice(i,1)
+			Hp=Hp-10;
+		}else{
+			ctx.drawImage(enemyImg,enemies[i].x,enemies[i].y);
+			enemies[i].move();
+		}
+
+
+	}
 	if(clock%80==0){
 		var newenemy = new Enemy();
 		enemies.push(newenemy);
 	}
 
-	
-	for(var i=0;i<enemies.length;i++){
-		ctx.drawImage(enemyImg,enemies[i].x,enemies[i].y);
-		enemies[i].move();
-	}
+
 
 
 	if(isbiding == true){
 		ctx.drawImage(towerImg,tower.x-tower.x%32,tower.y-tower.y%32);
 	}
-	
+	if(tower.aimingEnemyId!=null){
+				var id = tower.aimingEnemyId;
+			ctx.drawImage(crosshairImg, enemies[id].x, enemies[id].y)
+			}	
 }
+
   function getUnitVector (srcX, srcY, targetX, targetY) {
     var offsetX = targetX - srcX;
     var offsetY = targetY - srcY;
